@@ -475,11 +475,12 @@ class Ui_MainWindow(QMainWindow):
 
 
 
-
-#ChangeBtn 눌렀을 때 이벤트: 리뷰들 위치 교환할 창 열림
-    def changeOpen(self):
+#ChangeBtn 눌렀을 때 초기화
+    def changeOption(self):
+        self.fir_num = 0
     #change창 크기 지정, 왼쪽에 나타나게 함
         self.changeOpened = True
+        self.changeOnce = bool(True)
         self.Form.resize(392, 500)
         self.Form.move(500, 200)
         
@@ -495,25 +496,15 @@ class Ui_MainWindow(QMainWindow):
         for i in range(0,5,1):
         #각 changeLables, disalbeLabelBtns, LabelBtns 위치 지정 및 글자 내용 세팅
             self.changeLabels[i].setGeometry(QtCore.QRect(20,70+70*i,350,22))
-            self.changeLabels[i].setAlignment(QtCore.Qt.AlignCenter)
-            self.changeLabels[i].setText(self.names[i].text())
-            self.changeLabels[i].hide()
-            
+            self.changeLabels[i].setAlignment(QtCore.Qt.AlignCenter)    
             self.disableLabelBtns[i].setGeometry(QtCore.QRect(20,70+70*i,350,25))
-            self.disableLabelBtns[i].setText("선택됨")
             self.disableLabelBtns[i].setDisabled(True)
-            self.disableLabelBtns[i].hide()
-            
-            self.LabelBtns[i].setText(self.names[i].text())
             self.LabelBtns[i].setGeometry(QtCore.QRect(20,70+70*i,350,23))
-            
-            
+                     
         for i in range(0,6,1):
         #changeBtn 위치 지정, 글자 내용 세팅
         #얘만 따로 뺀 이유는 얘만 총 6개라서
             self.changeBtns[i].setGeometry(QtCore.QRect(150, 35+70*i, 90, 23))
-            self.changeBtns[i].setText("이동")
-            self.changeBtns[i].hide()
             
     #for문 썼더니 맨 뒤에 꺼만 돼서 각각 나눠놨어요
     #lambda 써야 인수 안쪽 함수에 인수 넣는 게 되더라고요
@@ -526,10 +517,41 @@ class Ui_MainWindow(QMainWindow):
     #취소버튼 정의, 크기 및 글자 지정, 숨김, 이벤트 연결
         self.cancelChangeBtn = QtWidgets.QPushButton(self.Form)
         self.cancelChangeBtn.setGeometry(QtCore.QRect(332, 10, 50, 28)) 
-        self.cancelChangeBtn.setText("취소")
-        self.cancelChangeBtn.hide()
         self.cancelChangeBtn.clicked.connect(self.cancelChange)
 
+        self.changeBtns[0].clicked.connect(lambda: self.changeSelect(self.fir_num,0))
+        self.changeBtns[1].clicked.connect(lambda: self.changeSelect(self.fir_num,1))
+        self.changeBtns[2].clicked.connect(lambda: self.changeSelect(self.fir_num,2))
+        self.changeBtns[3].clicked.connect(lambda: self.changeSelect(self.fir_num,3))
+        self.changeBtns[4].clicked.connect(lambda: self.changeSelect(self.fir_num,4))
+        self.changeBtns[5].clicked.connect(lambda: self.changeSelect(self.fir_num,5))
+        
+#ChangeBtn 눌렀을 때 이벤트: 리뷰들 위치 교환할 창 열림
+    def changeOpen(self):
+        self.changeOnce = True
+    #change창 크기 지정, 왼쪽에 나타나게 함
+        if self.changeOpened ==False:
+            self.changeOption()
+        self.Form.resize(392, 500)
+        self.Form.move(500, 200)
+        
+        for i in range(0,5,1):
+        #각 changeLables, disalbeLabelBtns, LabelBtns 위치 지정 및 글자 내용 세팅
+            self.changeLabels[i].hide()    
+            self.disableLabelBtns[i].setText("선택됨")
+            self.disableLabelBtns[i].hide()
+            self.LabelBtns[i].setGeometry(QtCore.QRect(20,70+70*i,350,23))
+            self.LabelBtns[i].setText(self.names[i].text())
+        for i in range(0,6,1):
+        #changeBtn 위치 지정, 글자 내용 세팅
+        #얘만 따로 뺀 이유는 얘만 총 6개라서
+            self.changeBtns[i].setText("이동")
+            self.changeBtns[i].hide()
+  
+    #취소버튼 정의, 크기 및 글자 지정, 숨김, 이벤트 연결
+        self.cancelChangeBtn.setText("취소")
+        self.cancelChangeBtn.hide()
+        
     #창 제목 지정하고서 열기
         self.Form.setWindowTitle("옮기기")
         self.Form.show()
@@ -541,12 +563,14 @@ class Ui_MainWindow(QMainWindow):
 #위치 교환 창에서 1~10번 제목버튼 눌렀을 때 이벤트: 라벨로 전환되고 이동 버튼들 나옴
     def LabelSelect(self,num):
     #눌린 번호 위치의 비활성화 버튼이 나타남
+        self.fir_num = num
         self.disableLabelBtns[num].show()
     #취소 눌렀다가 다시 실행해도 글자 안 겹치게 LabelBtns 글자 없앰.. 근데 두 번째 실행부턴 LabelBtns가 안 사라져요
-        for i in range(0,5,1):
+        for i in range(0,5,1):            
             self.LabelBtns[i].hide()
             self.LabelBtns[i].setText("")
             self.changeBtns[i].show()
+            self.changeLabels[i].setText(self.names[i].text())
             self.changeLabels[i].show()
             self.cancelChangeBtn.show()
     #changeBtns는 혼자만 원소 하나 더 있어서 따로 처리
@@ -556,12 +580,7 @@ class Ui_MainWindow(QMainWindow):
         self.changeBtns[num].hide()
         self.changeBtns[num+1].hide()
     #역시 for문으로는 맨 뒤에꺼만 돼서 개별처리
-        self.changeBtns[0].clicked.connect(lambda: self.changeSelect(num,0))
-        self.changeBtns[1].clicked.connect(lambda: self.changeSelect(num,1))
-        self.changeBtns[2].clicked.connect(lambda: self.changeSelect(num,2))
-        self.changeBtns[3].clicked.connect(lambda: self.changeSelect(num,3))
-        self.changeBtns[4].clicked.connect(lambda: self.changeSelect(num,4))
-        self.changeBtns[5].clicked.connect(lambda: self.changeSelect(num,5))
+        print("num: %d"%(num))
         
         
 #cancelChangeBtn 눌렀을 때 이벤트: 누르면 다시 버튼으로 돌아감
@@ -580,86 +599,90 @@ class Ui_MainWindow(QMainWindow):
 
 #첫번째 지정된 리뷰 자리를 두번째 지정된 리뷰 자리로 끌어올리고 창 닫기
     def changeSelect(self,first_num,second_num):
+        if (self.changeOnce == True):
     #이게 생각해보니까 아래에서 위로 가는 거랑 위에서 아래로 가는 거랑 따로 생각해야 하더라고요
-        if first_num < second_num:
-            second_num-=1
+            if first_num < second_num:
+                second_num-=1
+            
+        #pop할 내용 임시 저장
+            print("first_num:%d, second_num: %d"%(first_num,second_num))
+            self.temps = [self.names.pop(first_num),self.contents.pop(first_num),self.imgs.pop(first_num),self.reviewPoints.pop(first_num),self.reviews.pop(first_num),self.point_list.pop(first_num),self.LandmarksName.pop(first_num),self.place_names_list.pop(first_num)]
         
-    #pop할 내용 임시 저장
-        self.temps = [self.names.pop(first_num),self.contents.pop(first_num),self.imgs.pop(first_num),self.reviewPoints.pop(first_num),self.reviews.pop(first_num),self.point_list.pop(first_num),self.LandmarksName.pop(first_num),self.place_names_list.pop(first_num)]
-    
-        self.names.insert(second_num,self.temps[0])
-        self.contents.insert(second_num,self.temps[1])
-        self.imgs.insert(second_num,self.temps[2])
-        self.reviewPoints.insert(second_num,self.temps[3])
-        self.reviews.insert(second_num,self.temps[4])
-        self.point_list.insert(second_num,self.temps[5])
-        self.LandmarksName.insert(second_num,self.temps[6])
-        self.place_names_list.insert(second_num,self.temps[7])
+            self.names.insert(second_num,self.temps.pop(0))
+            self.contents.insert(second_num,self.temps.pop(0))
+            self.imgs.insert(second_num,self.temps.pop(0))
+            self.reviewPoints.insert(second_num,self.temps.pop(0))
+            self.reviews.insert(second_num,self.temps.pop(0))
+            self.point_list.insert(second_num,self.temps.pop(0))
+            self.LandmarksName.insert(second_num,self.temps.pop(0))
+            self.place_names_list.insert(second_num,self.temps.pop(0))
 
-        for i in range(0,5,1):
-            self.changeLabels[i].clear()
-            self.disableLabelBtns[i].hide()
-            self.changeBtns[i].hide()
-            self.changeLabels[i].hide()
-            self.cancelChangeBtn.hide()
-            self.LabelBtns[i].show() 
-        self.changeBtns[5].hide()
-        self.Form.close()
-    
-    #단순히 insert만 해서는 내용 갱신이 안 돼서 다시 setText, setUrl, 위치 변경
-        for i in range(0,5,1):
-            self.names[i].setText(self.names[i].text())
-            self.contents[i].setText(self.contents[i].text())
-            self.imgs[i].setUrl(QtCore.QUrl(self.imgs[i].url().toString()))
-            self.reviewPoints[i].setText(self.reviewPoints[i].text())
-            self.reviews[i].setText(self.reviews[i].text())
-            self.LandmarksName[i].setText(self.LandmarksName[i].text())
+            for i in range(0,5,1):
+                self.changeLabels[i].clear()
+                self.disableLabelBtns[i].hide()
+                self.changeBtns[i].hide()
+                self.changeLabels[i].hide()
+                self.cancelChangeBtn.hide()
+                self.LabelBtns[i].show() 
+            self.changeBtns[5].hide()
+            self.Form.close()
+        
+        #단순히 insert만 해서는 내용 갱신이 안 돼서 다시 setText, setUrl, 위치 변경
+            for i in range(0,5,1):
+                self.names[i].setText(self.names[i].text())
+                self.contents[i].setText(self.contents[i].text())
+                self.imgs[i].setUrl(QtCore.QUrl(self.imgs[i].url().toString()))
+                self.reviewPoints[i].setText(self.reviewPoints[i].text())
+                self.reviews[i].setText(self.reviews[i].text())
+                self.LandmarksName[i].setText(self.LandmarksName[i].text())
 
-            self.names[i].setGeometry(QtCore.QRect(10, 8+195*i, 535, 31))
-            self.contents[i].setGeometry(QtCore.QRect(145, 84+195*i, 418, 130))
-            self.imgs[i].setGeometry(QtCore.QRect(10, 42+195*i, 130, 122))
-            self.reviewPoints[i].setGeometry(QtCore.QRect(144, 44+195*i, 51, 17))
-            self.reviews[i].setGeometry(QtCore.QRect(258, 44+195*i, 101, 16))
-            self.LandmarksName[i].setGeometry(QtCore.QRect(145, 64+195*i, 418, 16))
+                self.names[i].setGeometry(QtCore.QRect(10, 8+195*i, 535, 31))
+                self.contents[i].setGeometry(QtCore.QRect(145, 84+195*i, 418, 130))
+                self.imgs[i].setGeometry(QtCore.QRect(10, 42+195*i, 130, 122))
+                self.reviewPoints[i].setGeometry(QtCore.QRect(144, 44+195*i, 51, 17))
+                self.reviews[i].setGeometry(QtCore.QRect(258, 44+195*i, 101, 16))
+                self.LandmarksName[i].setGeometry(QtCore.QRect(145, 64+195*i, 418, 16))
 
-        #바뀐 별점에 따라 별 갯수 노출도 변화
-            a = float(self.reviewPoints[i].text().replace(',','')) * 14.12
-            self.reviewStars[i].setGeometry(QtCore.QRect(175, 44+195*i, 1+int(a), 15))
+            #바뀐 별점에 따라 별 갯수 노출도 변화
+                a = float(self.reviewPoints[i].text().replace(',','')) * 14.12
+                self.reviewStars[i].setGeometry(QtCore.QRect(175, 44+195*i, 1+int(a), 15))
 
-        # 맵 다시 띄우기
-        mapchecker, opti_checker = map.MainFunc(self.point_list,self.place_names_list)
-        if mapchecker == "-99":
-            self.errorHappened = True
-            self.map_path = "map.html"
-        else:
-            self.map_path = 'route.html'
-        abs_map_path = os.path.abspath(self.map_path)
-        abs_map_path = abs_map_path.replace('\\', '/')
-        self.Map.setUrl(QtCore.QUrl(abs_map_path))
-        self.Map.show()
+            # 맵 다시 띄우기
+            mapchecker, opti_checker = map.MainFunc(self.point_list,self.place_names_list)
+            if mapchecker == "-99":
+                self.errorHappened = True
+                self.map_path = "map.html"
+            else:
+                self.map_path = 'route.html'
+            abs_map_path = os.path.abspath(self.map_path)
+            abs_map_path = abs_map_path.replace('\\', '/')
+            self.Map.setUrl(QtCore.QUrl(abs_map_path))
+            self.Map.show()
 
-        if opti_checker == -1:
-            self.optimize.setEnabled(False)
-        elif opti_checker == 0:
-            self.optimize.setEnabled(True)
+            if opti_checker == -1:
+                self.optimize.setEnabled(False)
+            elif opti_checker == 0:
+                self.optimize.setEnabled(True)
 
-        # 체인지 함수에서 에러
-        if (self.errorHappened == True):
-            self.ErrorOpen()
-            for i in range(0, 5, 1):
-                self.names[i].hide()
-                self.contents[i].hide()
-                self.reviews[i].hide()
-                self.reviewPoints[i].hide()
-                self.reviewStars[i].hide()
-                self.imgs[i].hide()
-                self.no_imgs[i].hide()
-                self.LandmarksName[i].hide()
-            self.optimize.hide()
-            self.deleteButton.hide()
-            self.changeButton.hide()
-            self.PsContents.hide()
-            self.errorHappened = False
+            # 체인지 함수에서 에러
+            if (self.errorHappened == True):
+                self.ErrorOpen()
+                for i in range(0, 5, 1):
+                    self.names[i].hide()
+                    self.contents[i].hide()
+                    self.reviews[i].hide()
+                    self.reviewPoints[i].hide()
+                    self.reviewStars[i].hide()
+                    self.imgs[i].hide()
+                    self.no_imgs[i].hide()
+                    self.LandmarksName[i].hide()
+                self.optimize.hide()
+                self.deleteButton.hide()
+                self.changeButton.hide()
+                self.PsContents.hide()
+                self.errorHappened = False
+            self.changeOnce = False
+            
 
 
 
